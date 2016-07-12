@@ -19,7 +19,7 @@
 #import "IJKCommon.h"
 #import "IJKDemoHistory.h"
 
-@interface IJKVideoViewController()
+@interface IJKVideoViewController()<IJKAudioDelegate>
 @property(nonatomic) float volume;
 @end
 
@@ -57,6 +57,12 @@
     return self;
 }
 
+
+- (void)onPCMDecibelsCallback:(float)left right:(float)right arg:(id)arg
+{
+//    NSLog(@"%s decibles left=%f, right=%f, arg=%@", __func__, left, right, arg);
+}
+
 #define EXPECTED_IJKPLAYER_VERSION (1 << 16) & 0xFF) | 
 - (void)viewDidLoad
 {
@@ -79,11 +85,14 @@
 
     IJKFFOptions *options = [IJKFFOptions optionsByDefault];
 
-    self.player = [[IJKFFMoviePlayerController alloc] initWithContentURL:self.url withOptions:options];
+    IJKFFMoviePlayerController *ffpController = [[IJKFFMoviePlayerController alloc] initWithContentURL:self.url withOptions:options];
+    self.player = ffpController;
     self.player.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.player.view.frame = self.view.bounds;
     self.player.scalingMode = IJKMPMovieScalingModeAspectFit;
     self.player.shouldAutoplay = YES;
+    
+    ffpController.audioDelegate = self;
 
 
 //    UIView *liveView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 200)];

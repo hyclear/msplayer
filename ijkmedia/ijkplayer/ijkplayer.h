@@ -186,6 +186,9 @@ int             ijkmp_get_mute(IjkMediaPlayer *mp);
 void            ijkmp_set_volume(IjkMediaPlayer *mp, float volume);
 float           ijkmp_get_volume(IjkMediaPlayer *mp);
 
+
+void            ijkmp_set_pcm_decibels_cb(IjkMediaPlayer *mp, pf_pcm_decibels_cb pcm_decibels_cb, void *arg);
+
 // must be freed with free();
 IjkMediaMeta   *ijkmp_get_meta_l(IjkMediaPlayer *mp);
 

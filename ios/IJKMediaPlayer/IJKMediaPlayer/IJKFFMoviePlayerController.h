@@ -68,6 +68,12 @@ typedef enum IJKLogLevel {
     k_IJK_LOG_SILENT  = 8,
 } IJKLogLevel;
 
+@protocol IJKAudioDelegate <NSObject>
+
+- (void)onPCMDecibelsCallback:(float)left right:(float)right arg:(id)arg;
+
+@end
+
 @interface IJKFFMoviePlayerController : NSObject <IJKMediaPlayback>
 
 - (id)initWithContentURL:(NSURL *)aUrl
@@ -127,6 +133,7 @@ typedef enum IJKLogLevel {
 
 @property (nonatomic, retain) id<IJKMediaNativeInvokeDelegate> nativeInvokeDelegate;
 
+@property (nonatomic, retain) id<IJKAudioDelegate> audioDelegate;
 - (void)didShutdown;
 
 #pragma mark KVO properties

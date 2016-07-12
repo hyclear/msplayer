@@ -30,3 +30,5 @@ void            ijkmp_ios_set_glview(IjkMediaPlayer *mp, IJKSDLGLView *glView);
 void            ijkmp_ios_add_glview(IjkMediaPlayer *mp, IJKSDLGLView *glView);
 void            ijkmp_ios_remove_glview(IjkMediaPlayer *mp, IJKSDLGLView *glView);
 bool            ijkmp_ios_is_videotoolbox_open(IjkMediaPlayer *mp);
+
+void            ijkmp_ios_set_pcm_decibels_cb(IjkMediaPlayer *mp, void(*pcm_decibels_cb)(float decibels, void *arg));

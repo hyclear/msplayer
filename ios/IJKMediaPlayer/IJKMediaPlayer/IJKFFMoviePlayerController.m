@@ -192,7 +192,10 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         ijkmp_set_weak_thiz(_mediaPlayer, (__bridge_retained void *) self);
         ijkmp_set_inject_opaque(_mediaPlayer, (__bridge void *) self);
         ijkmp_set_option_int(_mediaPlayer, IJKMP_OPT_CATEGORY_PLAYER, "start-on-prepared", _shouldAutoplay ? 1 : 0);
-
+        
+        //set pcm decibels callback
+        ijkmp_set_pcm_decibels_cb(_mediaPlayer, media_player_pcm_decibels_callback, (__bridge void *)self);
+        
         // init video sink
         _glView = [[IJKSDLGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         _glView.shouldShowHudView = NO;
@@ -1160,6 +1163,17 @@ int media_player_msg_loop(void* arg)
         // retained in prepare_async, before SDL_CreateThreadEx
         ijkmp_dec_ref_p(&mp);
         return 0;
+    }
+}
+
+
+void media_player_pcm_decibels_callback(float left, float rigth, void *arg)
+{
+    IJKFFMoviePlayerController *ffpController = (__bridge IJKFFMoviePlayerController *)arg;
+    
+    if (ffpController && ffpController.audioDelegate) {
+        
+        [ffpController.audioDelegate onPCMDecibelsCallback:left right:rigth arg:ffpController];
     }
 }
 

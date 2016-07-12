@@ -61,6 +61,7 @@ typedef NS_ENUM(NSInteger, IJKMPMovieTimeOption) {
 };
 
 @protocol IJKMediaPlayback;
+@protocol IJKAudioDelegate;
 
 #pragma mark IJKMediaPlayback
 

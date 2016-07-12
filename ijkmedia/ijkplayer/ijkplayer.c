@@ -236,6 +236,17 @@ void ijkmp_set_volume(IjkMediaPlayer *mp, float volume)
     MPTRACE("%s()=void\n", __func__);
 }
 
+
+void ijkmp_set_pcm_decibels_cb(IjkMediaPlayer *mp, pf_pcm_decibels_cb pcm_decibels_cb, void *arg)
+{
+    MPTRACE("%s()\n", __func__);
+    pthread_mutex_lock(&mp->mutex);
+    ffp_set_pcm_decibels_cb(mp->ffplayer, pcm_decibels_cb, arg);
+    pthread_mutex_unlock(&mp->mutex);
+    MPTRACE("%s()=void\n", __func__);
+    return ;
+}
+
 float ijkmp_get_volume(IjkMediaPlayer *mp)
 {
     MPTRACE("%s\n", __func__);

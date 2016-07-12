@@ -41,6 +41,7 @@
 #include "ijksdl/ijksdl.h"
 
 typedef int (*ijk_inject_callback)(void *opaque, int type, void *data, size_t data_size);
+typedef void (*pf_pcm_decibels_cb)(float left, float right, void *arg);
 
 #define FFP_OPT_CATEGORY_FORMAT 1
 #define FFP_OPT_CATEGORY_CODEC  2

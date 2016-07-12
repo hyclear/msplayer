@@ -2019,6 +2019,44 @@ static int audio_decode_frame(FFPlayer *ffp)
     }
     return resampled_data_size;
 }
+    
+
+/*calc calculate and callback volume decibels*/
+static void calculate_volume_decibel(FFPlayer *ffp, uint8_t *data, int len)
+{
+    VideoState *is = ffp->is;
+    
+    if (is->audio_tgt.channels != 2 || is->audio_tgt.fmt != AV_SAMPLE_FMT_S16) {
+        return;
+    }
+    
+    float dbValue[2] = {0};
+    double sum = 0;
+    int16_t amplitude = 0;
+    double ampAverage = 0;
+    int samples = len / (16 / 8);
+    for (int j = 0; j < 2; ++j) {
+        
+        for (int i = 0; i < samples; i+=2) {
+            
+            amplitude = data[2 * (i + j)] + (data[2 * (i + j) + 1] << 8);
+            
+            sum += abs(amplitude);
+        }
+        
+        ampAverage = sum / (samples / 2);
+        if (ampAverage < 1) {
+            ampAverage = 1;
+        }
+        dbValue[j] = 20 * log10(ampAverage / 32768.0) - 20 * log10(1 / 32768.0);
+    }
+    
+    if (ffp->pcm_decibels_cb) {
+        
+        ffp->pcm_decibels_cb(dbValue[0], dbValue[1], ffp->pcm_decibels_cb_arg);
+    }
+    
+}
 
 /* prepare a new audio buffer */
 static void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
@@ -2064,16 +2102,27 @@ static void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
         if (len1 > len)
             len1 = len;
         if (!is->muted && is->audio_volume == SDL_MIX_MAXVOLUME)
+        {
             memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
-        else {
+            //calculate and callback volume decibels
+            calculate_volume_decibel(ffp, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
+        }
+        else
+        {
             memset(stream, is->silence_buf[0], len1);
             if (!is->muted)
             {
                 SDL_MixAudio(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1, is->audio_volume);
                 
-                SDL_AoutSetStereoVolume(ffp->aout, is->audio_volume, is->audio_volume);
+                if (is->audio_volume_change) {
+                    SDL_AoutSetStereoVolume(ffp->aout, is->audio_volume, is->audio_volume);
+                    is->audio_volume_change = 0;
+                }
                 
                 memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
+                
+                //calculate and callback volume decibels
+                calculate_volume_decibel(ffp, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
             }
         }
         len -= len1;
@@ -3968,7 +4017,11 @@ void ffp_set_volume(FFPlayer *ffp, float volume)
 {
     if(!ffp) return;
     
-    ffp->is->audio_volume = volume;
+    if(volume != ffp->is->audio_volume)
+    {
+        ffp->is->audio_volume_change = 1;
+        ffp->is->audio_volume = volume;
+    }    
 }
     
 float ffp_get_volume(FFPlayer *ffp)
@@ -3977,6 +4030,14 @@ float ffp_get_volume(FFPlayer *ffp)
     
     return SDL_AoutGetVolume(ffp->aout);
 //    return ffp->is->audio_volume;
+}
+            
+void ffp_set_pcm_decibels_cb(FFPlayer *ffp, pf_pcm_decibels_cb pcm_decibels_cb, void *arg)
+{
+    if(!ffp) return;
+    
+    ffp->pcm_decibels_cb = pcm_decibels_cb;
+    ffp->pcm_decibels_cb_arg = arg;
 }
             
             

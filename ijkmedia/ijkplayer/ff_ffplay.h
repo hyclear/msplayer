@@ -116,6 +116,8 @@ int       ffp_get_mute(FFPlayer *ffp);
 void      ffp_set_volume(FFPlayer *ffp, float volume);
 float     ffp_get_volume(FFPlayer *ffp);
 
+void      ffp_set_pcm_decibels_cb(FFPlayer *ffp, pf_pcm_decibels_cb pcm_decibels_cb, void *arg);
+
 // must be freed with free();
 struct IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp);
 

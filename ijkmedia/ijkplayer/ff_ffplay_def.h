@@ -301,6 +301,7 @@ typedef struct VideoState {
     int audio_buf_index; /* in bytes */
     int audio_write_buf_size;
     int audio_volume;
+    int audio_volume_change;
     int muted;
     struct AudioParams audio_src;
 #if CONFIG_AVFILTER
@@ -640,6 +641,9 @@ typedef struct FFPlayer {
     int         af_changed;
     float       pf_playback_rate;
     int         pf_playback_rate_changed;
+    
+    pf_pcm_decibels_cb pcm_decibels_cb;
+    void        *pcm_decibels_cb_arg;
 
     void               *inject_opaque;
     FFStatistic         stat;
