@@ -37,7 +37,6 @@
 static const char *kIJKFFRequiredFFmpegVersion = "ff3.0--ijk0.5.0--dev0.4.5--rc11";
 
 @interface IJKFFMoviePlayerController()
-
 @end
 
 @implementation IJKFFMoviePlayerController {
@@ -67,6 +66,7 @@ static const char *kIJKFFRequiredFFmpegVersion = "ff3.0--ijk0.5.0--dev0.4.5--rc1
     IJKAVInject_AsyncStatistic _asyncStat;
     BOOL _shouldShowHudView;
     NSTimer *_hudTimer;
+    
 }
 
 @synthesize view = _view;
@@ -1167,13 +1167,16 @@ int media_player_msg_loop(void* arg)
 }
 
 
-void media_player_pcm_decibels_callback(float left, float rigth, void *arg)
+void media_player_pcm_decibels_callback(float left, float right, void *arg)
 {
     IJKFFMoviePlayerController *ffpController = (__bridge IJKFFMoviePlayerController *)arg;
     
     if (ffpController && ffpController.audioDelegate) {
         
-        [ffpController.audioDelegate onPCMDecibelsCallback:left right:rigth arg:ffpController];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            [ffpController.audioDelegate onPCMDecibelsCallback:left right:right arg:ffpController];
+        });
     }
 }
 

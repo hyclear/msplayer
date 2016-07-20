@@ -2026,25 +2026,27 @@ static void calculate_volume_decibel(FFPlayer *ffp, uint8_t *data, int len)
 {
     VideoState *is = ffp->is;
     
-    if (is->audio_tgt.channels != 2 || is->audio_tgt.fmt != AV_SAMPLE_FMT_S16) {
+    if (is->audio_tgt.fmt != AV_SAMPLE_FMT_S16) {
+        ALOGI("%s channel=%d", __func__, is->audio_tgt.channels);
         return;
     }
     
+    int channels = is->audio_tgt.channels;
     float dbValue[2] = {0};
     double sum = 0;
     int16_t amplitude = 0;
     double ampAverage = 0;
     int samples = len / (16 / 8);
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < channels; ++j) {
         
         for (int i = 0; i < samples; i+=2) {
             
-            amplitude = data[2 * (i + j)] + (data[2 * (i + j) + 1] << 8);
+            amplitude = data[channels * (i + j)] + (data[channels * (i + j) + 1] << 8);
             
             sum += abs(amplitude);
         }
         
-        ampAverage = sum / (samples / 2);
+        ampAverage = sum / (samples / channels);
         if (ampAverage < 1) {
             ampAverage = 1;
         }

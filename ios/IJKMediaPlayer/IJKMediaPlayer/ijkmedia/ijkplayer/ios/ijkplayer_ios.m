@@ -128,3 +128,4 @@ bool ijkmp_ios_is_videotoolbox_open(IjkMediaPlayer *mp)
     MPTRACE("%s()=%d\n", __func__, ret ? 1 : 0);
     return ret;
 }
+
