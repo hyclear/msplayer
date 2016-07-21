@@ -221,7 +221,7 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
         [[IJKAudioKit sharedInstance] setupAudioSession];
 
         [options applyTo:_mediaPlayer];
-        _pauseInBackground = NO;
+        _pauseInBackground = YES;
 
         // init extra
         _keepScreenOnWhilePlaying = YES;
@@ -239,6 +239,7 @@ void IJKFFIOStatCompleteRegister(void (*cb)(const char *url,
     glView.shouldShowHudView = NO;
     glView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     glView.frame = rect;
+    [glView setContentMode:UIViewContentModeScaleAspectFill];
     
     if (!_glViewArray) {
         _glViewArray = [[NSMutableArray alloc]init];
@@ -1531,11 +1532,21 @@ static int ijkff_inject_callback(void *opaque, int message, void *data, size_t d
 - (void)applicationWillEnterForeground
 {
     NSLog(@"IJKFFMoviePlayerController:applicationWillEnterForeground: %d", (int)[UIApplication sharedApplication].applicationState);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (_pauseInBackground) {
+            [self play];
+        }
+    });
 }
 
 - (void)applicationDidBecomeActive
 {
     NSLog(@"IJKFFMoviePlayerController:applicationDidBecomeActive: %d", (int)[UIApplication sharedApplication].applicationState);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (_pauseInBackground) {
+            [self play];
+        }
+    });
 }
 
 - (void)applicationWillResignActive
